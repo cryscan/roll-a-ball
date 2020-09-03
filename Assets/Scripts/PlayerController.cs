@@ -47,7 +47,7 @@ public class PlayerController : MonoBehaviour
         rb.AddTorque(torque * verticalAxis);
 
         torque = horizontalTorque;
-        var horizontalAxis = Vector3.Cross(Vector3.up, verticalAxis) * movement.x;
+        var horizontalAxis = Vector3.Cross(Vector3.up, transform.right) * movement.x;
         rb.AddTorque(torque * horizontalAxis);
     }
 }
