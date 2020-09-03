@@ -200,4 +200,4 @@ MonoBehaviour:
   groundLayers:
     serializedVersion: 2
     m_Bits: 1024
-  rayLength: 1.1
+  rayLength: 1.2

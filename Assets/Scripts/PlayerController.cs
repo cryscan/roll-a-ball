@@ -17,11 +17,12 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] float jumpSpeed = 10;
     [SerializeField] LayerMask groundLayers = default;
-    [SerializeField] float rayLength = 1.1f;
+    [SerializeField] float rayLength = 1.2f;
 
     Rigidbody rb;
     Vector2 movement;
     bool jump = false;
+    bool balanced = true;
 
     void Awake()
     {
@@ -44,15 +45,20 @@ public class PlayerController : MonoBehaviour
         if (transform.position.y < fallThreshold) game.Reset();
     }
 
+    void BalanceCheck()
+    {
+        var balanceAngle = Vector3.Angle(Vector3.up, transform.right);
+        Debug.DrawRay(transform.position, transform.right);
+        balanced = balanceAngle > 10 && balanceAngle < 170;
+    }
+
     void UpdateCamera()
     {
         var trans = playerCamera.transform;
         var look = transform.position - trans.position;
         trans.rotation = Quaternion.LookRotation(look, Vector3.up);
 
-        var balanceAngle = Vector3.Angle(Vector3.up, transform.right);
-        Debug.DrawRay(transform.position, transform.right);
-        if (balanceAngle < 10 || balanceAngle > 170) return;
+        if (!balanced) return;
 
         var planeLook = new Vector2(look.x, look.z);
         var velocity = new Vector2(rb.velocity.x, rb.velocity.z);
@@ -80,6 +86,13 @@ public class PlayerController : MonoBehaviour
     void ApplyJump()
     {
         if (!jump) return;
+
+        if (!balanced)
+        {
+            jump = false;
+            return;
+        }
+
         Ray ray = new Ray(transform.position, Vector3.down);
         if (Physics.Raycast(ray, rayLength, groundLayers))
         {
@@ -87,10 +100,12 @@ public class PlayerController : MonoBehaviour
             velocity.y = jumpSpeed;
             rb.velocity = velocity;
         }
+        jump = false;
     }
 
     void Update()
     {
+        BalanceCheck();
         UpdateCamera();
         FallReset();
     }
