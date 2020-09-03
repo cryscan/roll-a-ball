@@ -758,6 +758,33 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "Game",
+            "id": "f47b9cd1-c0b0-4804-9553-1f0c5be3445d",
+            "actions": [
+                {
+                    "name": "Reset",
+                    "type": "Button",
+                    "id": "a475df52-ad17-45fc-9163-16b958dd8a8b",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "24a97403-f1df-4cf1-a139-8153a033f46d",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Reset",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": [
