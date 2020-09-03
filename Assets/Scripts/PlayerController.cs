@@ -6,18 +6,25 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] GameManager game = default;
+
+    [Header("Camera")]
     [SerializeField] Camera playerCamera = default;
     [SerializeField] float cameraDistance = 15;
     [SerializeField] float cameraRadicalFalloff = 1;
     [SerializeField] float cameraTangentialSpeed = 20;
 
+    [Header("Move")]
     [SerializeField] float fallThreshold = -10;
     [SerializeField] float verticalTorque = 100;
     [SerializeField] float horizontalTorque = 100;
 
+    [Header("Jump")]
     [SerializeField] float jumpSpeed = 10;
     [SerializeField] LayerMask groundLayers = default;
     [SerializeField] float rayLength = 1.2f;
+
+    [Header("Collectable")]
+    [SerializeField] LayerMask collectableLayers = default;
 
     Rigidbody rb;
     Vector2 movement;
@@ -114,5 +121,16 @@ public class PlayerController : MonoBehaviour
     {
         ApplyTorque();
         ApplyJump();
+    }
+
+    void OnTriggerEnter(Collider collider)
+    {
+        var obj = collider.gameObject;
+        var collectable = collider.gameObject.GetComponent<Collectable>();
+        if ((collectable && (1 << obj.layer & collectableLayers) != 0))
+        {
+            game.IncreaseScore(collectable.score);
+            Destroy(obj);
+        }
     }
 }
