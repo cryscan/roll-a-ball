@@ -5,8 +5,8 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] GameManager game;
-    [SerializeField] Camera playerCamera;
+    [SerializeField] GameManager game = default;
+    [SerializeField] Camera playerCamera = default;
     [SerializeField] float cameraDistance = 15;
     [SerializeField] float cameraRadicalFalloff = 1;
     [SerializeField] float cameraTangentialSpeed = 20;
@@ -15,8 +15,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float verticalTorque = 100;
     [SerializeField] float horizontalTorque = 100;
 
+    [SerializeField] float jumpSpeed = 10;
+    [SerializeField] LayerMask groundLayers = default;
+    [SerializeField] float rayLength = 1.1f;
+
     Rigidbody rb;
     Vector2 movement;
+    bool jump = false;
 
     void Awake()
     {
@@ -29,9 +34,10 @@ public class PlayerController : MonoBehaviour
         Debug.Log($"Horizontal: {movement.x}, Vertical: {movement.y}");
     }
 
-    public void OnFire() { }
-
-    public void OnLook() { }
+    public void OnJump()
+    {
+        jump = true;
+    }
 
     void FallReset()
     {
@@ -62,6 +68,27 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    void ApplyTorque()
+    {
+        var verticalAxis = transform.right * movement.y;
+        rb.AddTorque(verticalTorque * verticalAxis);
+
+        var horizontalAxis = Vector3.Cross(Vector3.up, transform.right) * movement.x;
+        rb.AddTorque(horizontalTorque * horizontalAxis);
+    }
+
+    void ApplyJump()
+    {
+        if (!jump) return;
+        Ray ray = new Ray(transform.position, Vector3.down);
+        if (Physics.Raycast(ray, rayLength, groundLayers))
+        {
+            var velocity = rb.velocity;
+            velocity.y = jumpSpeed;
+            rb.velocity = velocity;
+        }
+    }
+
     void Update()
     {
         UpdateCamera();
@@ -70,12 +97,7 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        float torque = verticalTorque;
-        var verticalAxis = transform.right * movement.y;
-        rb.AddTorque(torque * verticalAxis);
-
-        torque = horizontalTorque;
-        var horizontalAxis = Vector3.Cross(Vector3.up, transform.right) * movement.x;
-        rb.AddTorque(torque * horizontalAxis);
+        ApplyTorque();
+        ApplyJump();
     }
 }

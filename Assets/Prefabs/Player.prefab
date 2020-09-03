@@ -188,5 +188,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e2f96e9f6ec514128089724f006cd38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  game: {fileID: 0}
+  playerCamera: {fileID: 0}
+  cameraDistance: 15
+  cameraRadicalFalloff: 1
+  cameraTangentialSpeed: 20
+  fallThreshold: -10
   verticalTorque: 100
   horizontalTorque: 100
+  jumpSpeed: 10
+  groundLayers:
+    serializedVersion: 2
+    m_Bits: 1024
+  rayLength: 1.1
