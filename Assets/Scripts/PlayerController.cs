@@ -5,10 +5,12 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] GameManager game;
     [SerializeField] Camera playerCamera;
 
-    [SerializeField] float verticalTorque;
-    [SerializeField] float horizontalTorque;
+    [SerializeField] float fallThreshold = -10;
+    [SerializeField] float verticalTorque = 100;
+    [SerializeField] float horizontalTorque = 100;
 
     Rigidbody rb;
     Vector2 movement;
@@ -28,9 +30,14 @@ public class PlayerController : MonoBehaviour
 
     public void OnLook() { }
 
+    void FallReset()
+    {
+        if (transform.position.y < fallThreshold) game.Reset();
+    }
+
     void Update()
     {
-
+        FallReset();
     }
 
     void FixedUpdate()

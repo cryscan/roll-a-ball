@@ -123,6 +123,17 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &194496945 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5454835156843899903, guid: a1a64e76cbeac51d0ab0dcf0ab9e6a6a, type: 3}
+  m_PrefabInstance: {fileID: 5454835156918067790}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4e8087979a7c0f3eb995d60bf316cfc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &198962706
 GameObject:
   m_ObjectHideFlags: 0
@@ -396,6 +407,7 @@ GameObject:
   - component: {fileID: 1674645184}
   - component: {fileID: 1674645183}
   - component: {fileID: 1674645182}
+  - component: {fileID: 1674645185}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -468,6 +480,37 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1674645185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1674645181}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_Version: 2
 --- !u!1001 &1397494545127082200
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -479,6 +522,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 1397494545240389748, guid: 3e3c9976d0435f45a89dfa9b209f7cdb, type: 3}
+      propertyPath: game
+      value: 
+      objectReference: {fileID: 194496945}
+    - target: {fileID: 1397494545240389748, guid: 3e3c9976d0435f45a89dfa9b209f7cdb, type: 3}
+      propertyPath: playerCamera
+      value: 
+      objectReference: {fileID: 1674645183}
     - target: {fileID: 1397494545240389750, guid: 3e3c9976d0435f45a89dfa9b209f7cdb, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
