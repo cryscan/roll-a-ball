@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
@@ -14,9 +15,11 @@ public class GameManager : MonoBehaviour
         StartCoroutine(ResetCoroutine());
     }
 
+    public void OnReset(InputAction.CallbackContext context) => Reset();
+
     IEnumerator ResetCoroutine()
     {
-        animator.SetTrigger("fade");
+        animator.SetTrigger("Fade");
         yield return new WaitForSeconds(2);
         SceneManager.LoadScene(levelName);
     }
