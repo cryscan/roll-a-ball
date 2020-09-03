@@ -716,46 +716,6 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3156015426407643826, guid: a1a64e76cbeac51d0ab0dcf0ab9e6a6a, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: -50
-      objectReference: {fileID: 0}
-    - target: {fileID: 3156015426407643826, guid: a1a64e76cbeac51d0ab0dcf0ab9e6a6a, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -5
-      objectReference: {fileID: 0}
-    - target: {fileID: 3518298538256535151, guid: a1a64e76cbeac51d0ab0dcf0ab9e6a6a, type: 3}
-      propertyPath: m_AnchorMin.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3518298538256535151, guid: a1a64e76cbeac51d0ab0dcf0ab9e6a6a, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3518298538256535151, guid: a1a64e76cbeac51d0ab0dcf0ab9e6a6a, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3518298538256535151, guid: a1a64e76cbeac51d0ab0dcf0ab9e6a6a, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3518298538256535151, guid: a1a64e76cbeac51d0ab0dcf0ab9e6a6a, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3518298538256535151, guid: a1a64e76cbeac51d0ab0dcf0ab9e6a6a, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4133789653736732548, guid: a1a64e76cbeac51d0ab0dcf0ab9e6a6a, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 20.000732
-      objectReference: {fileID: 0}
-    - target: {fileID: 4133789653736732548, guid: a1a64e76cbeac51d0ab0dcf0ab9e6a6a, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 20
-      objectReference: {fileID: 0}
     - target: {fileID: 5454835156843899873, guid: a1a64e76cbeac51d0ab0dcf0ab9e6a6a, type: 3}
       propertyPath: m_Name
       value: Game Manager
@@ -820,6 +780,5 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 5454835157378664553, guid: a1a64e76cbeac51d0ab0dcf0ab9e6a6a, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a1a64e76cbeac51d0ab0dcf0ab9e6a6a, type: 3}

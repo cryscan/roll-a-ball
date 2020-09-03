@@ -56,7 +56,7 @@ public class PlayerController : MonoBehaviour
     {
         var balanceAngle = Vector3.Angle(Vector3.up, transform.right);
         Debug.DrawRay(transform.position, transform.right);
-        balanced = balanceAngle > 10 && balanceAngle < 170;
+        balanced = balanceAngle > 30 && balanceAngle < 150;
     }
 
     void UpdateCamera()
