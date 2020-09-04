@@ -19,16 +19,23 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float horizontalTorque = 100;
 
     [Header("Jump")]
-    [SerializeField] float jumpSpeed = 10;
+    [SerializeField] float maxJumpTime = 0.5f;
+    [SerializeField] float minJumpSpeed = 5;
+    [SerializeField] float maxJumpSpeed = 15;
     [SerializeField] LayerMask groundLayers = default;
     [SerializeField] float rayLength = 1.2f;
 
     [Header("Collectable")]
     [SerializeField] LayerMask collectableLayers = default;
 
+    PlayerControls controls;
     Rigidbody rb;
+
     Vector2 movement;
+
     bool jump = false;
+    float jumpedTime = 0;
+
     bool balanced = true;
 
     void Awake()
@@ -36,17 +43,52 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
-    public void OnMove(InputValue value)
+    void Start()
     {
-        movement = value.Get<Vector2>();
+        RegisterControlCallbacks();
+    }
+
+    void OnEnable()
+    {
+        if (controls == null) controls = new PlayerControls();
+        controls.Player.Enable();
+    }
+
+    void OnDisable()
+    {
+        controls.Player.Disable();
+    }
+
+    void RegisterControlCallbacks()
+    {
+        controls.Player.Move.performed += context => OnMove(context.ReadValue<Vector2>());
+        controls.Player.Move.canceled += context => OnMove(context.ReadValue<Vector2>());
+
+        controls.Player.Jump.performed += context => OnJumpPerformed();
+        controls.Player.Jump.canceled += context => OnJumpCanceled();
+    }
+
+    public void OnMove(Vector2 movement)
+    {
+        this.movement = movement;
         Debug.Log($"Horizontal: {movement.x}, Vertical: {movement.y}");
     }
 
-    public void OnJump()
+    public void OnJumpPerformed()
     {
-        jump = true;
+        Ray ray = new Ray(transform.position, Vector3.down);
+        if (Physics.Raycast(ray, rayLength, groundLayers))
+        {
+            jump = true;
+            jumpedTime = 0;
+        }
     }
 
+    public void OnJumpCanceled()
+    {
+        jump = false;
+        jumpedTime = 0;
+    }
     void FallReset()
     {
         if (transform.position.y < fallThreshold) game.Reset();
@@ -77,6 +119,7 @@ public class PlayerController : MonoBehaviour
             var radical = lookDir * (distance - cameraDistance);
             var tangent = new Vector2(-lookDir.y, lookDir.x) * angle * Mathf.Deg2Rad * cameraTangentialSpeed;
             var target = trans.position + new Vector3(radical.x, 0, radical.y) + new Vector3(tangent.x, 0, tangent.y);
+            target.y = transform.position.y + 5;
             trans.position = Vector3.Lerp(trans.position, target, 1 - Mathf.Exp(-cameraRadicalFalloff * Time.deltaTime));
         }
     }
@@ -94,20 +137,15 @@ public class PlayerController : MonoBehaviour
     {
         if (!jump) return;
 
-        if (!balanced)
-        {
-            jump = false;
-            return;
-        }
+        jumpedTime += Time.fixedDeltaTime;
+        if (jumpedTime > maxJumpTime) jump = false;
 
-        Ray ray = new Ray(transform.position, Vector3.down);
-        if (Physics.Raycast(ray, rayLength, groundLayers))
-        {
-            var velocity = rb.velocity;
-            velocity.y = jumpSpeed;
-            rb.velocity = velocity;
-        }
-        jump = false;
+        var speed = Mathf.Lerp(minJumpSpeed, maxJumpSpeed, jumpedTime / maxJumpTime);
+        speed = Mathf.Min(speed, maxJumpSpeed);
+
+        var velocity = rb.velocity;
+        velocity.y = speed;
+        rb.velocity = velocity;
     }
 
     void Update()
