@@ -32,6 +32,7 @@ public class PlayerController : MonoBehaviour
     Rigidbody rb;
 
     Vector2 movement;
+    bool grounded = false;
 
     bool jump = false;
     float jumpedTime = 0;
@@ -59,6 +60,31 @@ public class PlayerController : MonoBehaviour
         controls.Player.Disable();
     }
 
+    void Update()
+    {
+        GroundedCheck();
+        BalanceCheck();
+        UpdateCamera();
+        FallReset();
+    }
+
+    void FixedUpdate()
+    {
+        ApplyTorque();
+        ApplyJump();
+    }
+
+    void OnTriggerEnter(Collider collider)
+    {
+        var obj = collider.gameObject;
+        var collectable = collider.gameObject.GetComponent<Collectable>();
+        if ((collectable && (1 << obj.layer & collectableLayers) != 0))
+        {
+            game.IncreaseScore(collectable.score);
+            Destroy(obj);
+        }
+    }
+
     void RegisterControlCallbacks()
     {
         controls.Player.Move.performed += context => OnMove(context.ReadValue<Vector2>());
@@ -77,7 +103,7 @@ public class PlayerController : MonoBehaviour
     public void OnJumpPerformed()
     {
         Ray ray = new Ray(transform.position, Vector3.down);
-        if (Physics.Raycast(ray, rayLength, groundLayers))
+        if (grounded)
         {
             jump = true;
             jumpedTime = 0;
@@ -94,6 +120,12 @@ public class PlayerController : MonoBehaviour
         if (transform.position.y < fallThreshold) game.Reset();
     }
 
+    void GroundedCheck()
+    {
+        Ray ray = new Ray(transform.position, Vector3.down);
+        grounded = Physics.Raycast(ray, rayLength, groundLayers);
+    }
+
     void BalanceCheck()
     {
         var balanceAngle = Vector3.Angle(Vector3.up, transform.right);
@@ -107,7 +139,7 @@ public class PlayerController : MonoBehaviour
         var look = transform.position - trans.position;
         trans.rotation = Quaternion.LookRotation(look, Vector3.up);
 
-        if (!balanced) return;
+        if (grounded && !balanced) return;
 
         var planeLook = new Vector2(look.x, look.z);
         var velocity = new Vector2(rb.velocity.x, rb.velocity.z);
@@ -146,29 +178,5 @@ public class PlayerController : MonoBehaviour
         var velocity = rb.velocity;
         velocity.y = speed;
         rb.velocity = velocity;
-    }
-
-    void Update()
-    {
-        BalanceCheck();
-        UpdateCamera();
-        FallReset();
-    }
-
-    void FixedUpdate()
-    {
-        ApplyTorque();
-        ApplyJump();
-    }
-
-    void OnTriggerEnter(Collider collider)
-    {
-        var obj = collider.gameObject;
-        var collectable = collider.gameObject.GetComponent<Collectable>();
-        if ((collectable && (1 << obj.layer & collectableLayers) != 0))
-        {
-            game.IncreaseScore(collectable.score);
-            Destroy(obj);
-        }
     }
 }
