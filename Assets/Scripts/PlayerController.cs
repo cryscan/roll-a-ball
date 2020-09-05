@@ -5,18 +5,21 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] GameManager game = default;
-
     [Header("Camera")]
     [SerializeField] Camera playerCamera = default;
     [SerializeField] float cameraDistance = 15;
-    [SerializeField] float cameraRadicalFalloff = 1;
-    [SerializeField] float cameraTangentialSpeed = 20;
+    [SerializeField] float cameraFollowFalloff = 1;
+
+    [Header("Misc")]
+    [SerializeField] float fallThreshold = -10;
+    [SerializeField] float balanceLimit = 30;
 
     [Header("Move")]
-    [SerializeField] float fallThreshold = -10;
-    [SerializeField] float verticalTorque = 100;
-    [SerializeField] float horizontalTorque = 100;
+    [SerializeField] float maxAxialPower = 3000;
+    [SerializeField] float maxAxialTorque = 1000;
+    [SerializeField] float inclineAngleSensitivity = 60;
+    [SerializeField] float inclineAngleFalloff = 0.1f;
+    [SerializeField] float targetInclineAngleFalloff = 10;
 
     [Header("Jump")]
     [SerializeField] float maxJumpTime = 0.5f;
@@ -31,13 +34,16 @@ public class PlayerController : MonoBehaviour
     PlayerControls controls;
     Rigidbody rb;
 
-    Vector2 movement;
+    [SerializeField] Vector2 movement;
+
+    float targetInclineAngle = 0;
+
+    bool balanced = true;
+
     bool grounded = false;
 
     bool jump = false;
     float jumpedTime = 0;
-
-    bool balanced = true;
 
     void Awake()
     {
@@ -65,12 +71,13 @@ public class PlayerController : MonoBehaviour
         GroundedCheck();
         BalanceCheck();
         UpdateCamera();
+        UpdateTargetInclineAngle();
         FallReset();
     }
 
     void FixedUpdate()
     {
-        ApplyTorque();
+        ApplyControl();
         ApplyJump();
     }
 
@@ -80,7 +87,7 @@ public class PlayerController : MonoBehaviour
         var collectable = collider.gameObject.GetComponent<Collectable>();
         if ((collectable && (1 << obj.layer & collectableLayers) != 0))
         {
-            game.IncreaseScore(collectable.score);
+            GameManager.instance.IncreaseScore(collectable.score);
             Destroy(obj);
         }
     }
@@ -117,7 +124,7 @@ public class PlayerController : MonoBehaviour
     }
     void FallReset()
     {
-        if (transform.position.y < fallThreshold) game.Reset();
+        if (transform.position.y < fallThreshold) GameManager.instance.Reset();
     }
 
     void GroundedCheck()
@@ -130,7 +137,7 @@ public class PlayerController : MonoBehaviour
     {
         var balanceAngle = Vector3.Angle(Vector3.up, transform.right);
         Debug.DrawRay(transform.position, transform.right);
-        balanced = balanceAngle > 30 && balanceAngle < 150;
+        balanced = balanceAngle > balanceLimit && balanceAngle < 180 - balanceLimit;
     }
 
     void UpdateCamera()
@@ -145,24 +152,77 @@ public class PlayerController : MonoBehaviour
         var velocity = new Vector2(rb.velocity.x, rb.velocity.z);
         var distance = planeLook.magnitude;
         var angle = Vector2.SignedAngle(velocity, planeLook);
-        if (distance > cameraDistance && Mathf.Abs(angle) < 90)
+        if (distance > cameraDistance)
         {
             var lookDir = planeLook.normalized;
-            var radical = lookDir * (distance - cameraDistance);
-            var tangent = new Vector2(-lookDir.y, lookDir.x) * angle * Mathf.Deg2Rad * cameraTangentialSpeed;
-            var target = trans.position + new Vector3(radical.x, 0, radical.y) + new Vector3(tangent.x, 0, tangent.y);
+            var delta = lookDir * (distance - cameraDistance);
+            var target = trans.position + new Vector3(delta.x, 0, delta.y);
             target.y = transform.position.y + 5;
-            trans.position = Vector3.Lerp(trans.position, target, 1 - Mathf.Exp(-cameraRadicalFalloff * Time.deltaTime));
+            trans.position = Vector3.Lerp(trans.position, target, 1 - Mathf.Exp(-cameraFollowFalloff * Time.deltaTime));
         }
     }
 
-    void ApplyTorque()
+    void UpdateTargetInclineAngle()
     {
-        var verticalAxis = transform.right * movement.y;
-        rb.AddTorque(verticalTorque * verticalAxis);
+        if (movement.x != 0)
+        {
+            var inclineAngleLimit = 90 - balanceLimit;
+            targetInclineAngle += movement.x * inclineAngleSensitivity * Time.deltaTime;
+            targetInclineAngle = Mathf.Clamp(targetInclineAngle, -inclineAngleLimit, inclineAngleLimit);
+        }
+        else
+        {
+            targetInclineAngle = Mathf.Lerp(targetInclineAngle, 0, 1 - Mathf.Exp(-targetInclineAngleFalloff * Time.deltaTime));
+        }
+    }
 
-        var horizontalAxis = Vector3.Cross(Vector3.up, transform.right) * movement.x;
-        rb.AddTorque(horizontalTorque * horizontalAxis);
+    void ApplyControl()
+    {
+        var primaryAxis = transform.right;                              // right
+        var secondaryAxis = Vector3.Cross(Vector3.up, primaryAxis);     // forward
+        var tertiaryAxis = Vector3.Cross(primaryAxis, secondaryAxis);   // up
+
+        var angularVelocity = rb.angularVelocity;
+
+        /*
+        Vector3 deltaAxialAngularVelocity = Vector3.zero;
+        if (movement.y != 0)
+        {
+            var axialAxis = primaryAxis * movement.y;
+            var axialSpeed = Vector3.Dot(angularVelocity, axialAxis);
+            var targetAxialSpeed = Mathf.Lerp(axialSpeed, maxAxialSpeed, 1 - Mathf.Exp(-axialFalloff * Time.fixedDeltaTime));
+            var deltaAxialSpeed = targetAxialSpeed - axialSpeed;
+            deltaAxialAngularVelocity = axialAxis * deltaAxialSpeed;
+        }
+        angularVelocity += deltaAxialAngularVelocity;
+        */
+
+        float axialTorque = 0;
+        if (movement.y != 0)
+        {
+            var axialAxis = primaryAxis * movement.y;
+            var axialSpeed = Vector3.Dot(angularVelocity, axialAxis);
+            if (axialSpeed < maxAxialPower / maxAxialTorque) axialTorque = maxAxialTorque;
+            else axialTorque = maxAxialPower / axialSpeed;
+
+            rb.AddTorque(axialTorque * axialAxis);
+        }
+
+        if (grounded)
+        {
+            var inclineAngle = Vector3.SignedAngle(Vector3.up, tertiaryAxis, secondaryAxis);
+            var nextInclineAngle = Mathf.Lerp(inclineAngle, targetInclineAngle, 1 - Mathf.Exp(-inclineAngleFalloff * Time.fixedDeltaTime));
+            var inclineAngularSpeed = (nextInclineAngle - inclineAngle) / Time.fixedDeltaTime;
+
+            var secondaryProjection = Vector3.Dot(angularVelocity, secondaryAxis);
+            angularVelocity += secondaryAxis * (-secondaryProjection + inclineAngularSpeed);
+        }
+        else
+        {
+            rb.AddTorque(axialTorque * movement.x * secondaryAxis);
+        }
+
+        rb.angularVelocity = angularVelocity;
     }
 
     void ApplyJump()

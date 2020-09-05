@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(Animator))]
 public class GameManager : MonoBehaviour
 {
+    static public GameManager instance { get; private set; } = null;
+
     public string levelName = "Level";
 
     public int score { get; private set; } = 0;
@@ -15,6 +17,9 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
+        if (instance == null) instance = this;
+        else if (instance != this) Destroy(gameObject);
+
         animator = GetComponent<Animator>();
     }
 
